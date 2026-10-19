@@ -1,0 +1,23 @@
+name: Smart-X build and checks
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: dotnet build SmartX.sln -c Release -m:1
+      - run: dotnet run --project tests/SmartX.Checks -c Release --no-build
+      - run: node --check src/SmartX.Api/wwwroot/app.js
+      - run: node --check src/SmartX.Api/wwwroot/navigation.js
+      - run: node --check src/SmartX.Api/wwwroot/stream.js
+      - run: node --check src/SmartX.Api/wwwroot/stream-api.js
+      - run: python scripts/http_checks.py
